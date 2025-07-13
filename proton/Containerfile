@@ -1,0 +1,14 @@
+FROM docker.io/library/debian:trixie
+
+ARG GE_VERSION="10-9"
+
+RUN apt-get update
+RUN apt-get install -y \
+wget
+
+RUN mkdir /opt/proton
+RUN wget -O- "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/GE-Proton${GE_VERSION}.tar.gz" | \
+tar -xz --strip-components=1 -C /opt/proton
+
+RUN ln -s /opt/proton/files/bin/wine /usr/local/bin/wine
+RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
