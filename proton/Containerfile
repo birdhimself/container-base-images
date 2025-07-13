@@ -1,14 +1,23 @@
-FROM docker.io/library/debian:trixie
+FROM docker.io/library/debian:trixie AS base
 
 ARG GE_VERSION="10-9"
 
 RUN apt-get update
 RUN apt-get install -y \
-wget
+wget \
+gpg
 
 RUN mkdir /opt/proton
-RUN wget -O- "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/GE-Proton${GE_VERSION}.tar.gz" | \
+RUN wget -qO- "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/GE-Proton${GE_VERSION}.tar.gz" | \
 tar -xz --strip-components=1 -C /opt/proton
 
 RUN ln -s /opt/proton/files/bin/wine /usr/local/bin/wine
 RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
+
+FROM base AS box64
+
+COPY box64.sources /etc/apt/sources.list.d/
+
+RUN wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg
+RUN apt-get update
+RUN apt-get install -y box64-generic-arm
