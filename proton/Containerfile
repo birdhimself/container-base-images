@@ -14,7 +14,11 @@ tar -xz --strip-components=1 -C /opt/proton
 RUN ln -s /opt/proton/files/bin/wine /usr/local/bin/wine
 RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
 
+# We need box64 for arm64
 COPY ./install-box64.sh /tmp/
-
 RUN /tmp/install-box64.sh
 RUN rm -f /tmp/install-box64.sh
+
+# Cleanup
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
