@@ -1,4 +1,4 @@
-name: Build and Push Changed Container Images
+name: Build and Push Container Images
 
 on:
   push:
@@ -6,30 +6,11 @@ on:
       - main
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      changed_folders: ${{ steps.filter.outputs.changed_folders }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get changed Containerfiles
-        id: filter
-        run: |
-          # Find changed Containerfiles in subfolders
-          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^[^/]\+/.*' | sed 's,/.*,,' | sort -u | xargs)
-          FOLDERS=$(echo "$CHANGED" | sed 's/\/Containerfile$//' | xargs)
-          echo "changed_folders=$FOLDERS" >> $GITHUB_OUTPUT
-
   build-and-push:
-    needs: detect-changes
     runs-on: ubuntu-latest
-    if: ${{ needs.detect-changes.outputs.changed_folders != '' }}
     strategy:
       matrix:
-        folder: ${{ fromJson('[''${{ needs.detect-changes.outputs.changed_folders }}'']') }}
+        folder: [proton]
         arch: [amd64, arm64]
     steps:
       - name: Checkout code
