@@ -19,7 +19,7 @@ jobs:
         id: filter
         run: |
           # Find changed Containerfiles in subfolders
-          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^[^/\]*\/Containerfile$' || true)
+          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^[^/]\+/.*' | sed 's,/.*,,' | sort -u | xargs)
           FOLDERS=$(echo "$CHANGED" | sed 's/\/Containerfile$//' | xargs)
           echo "changed_folders=$FOLDERS" >> $GITHUB_OUTPUT
 
