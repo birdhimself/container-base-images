@@ -14,10 +14,6 @@ tar -xz --strip-components=1 -C /opt/proton
 RUN ln -s /opt/proton/files/bin/wine /usr/local/bin/wine
 RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
 
-FROM base AS box64
+COPY ./install-box64.sh /tmp/
 
-COPY box64.sources /etc/apt/sources.list.d/
-
-RUN wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | gpg --dearmor -o /etc/apt/keyrings/box64-archive-keyring.gpg
-RUN apt-get update
-RUN apt-get install -y box64-generic-arm
+RUN /tmp/install-box64.sh
