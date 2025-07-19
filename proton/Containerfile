@@ -1,5 +1,6 @@
 FROM docker.io/library/debian:trixie AS base
 
+ARG TARGETARCH
 ARG GE_VERSION="10-9"
 
 RUN apt-get update
@@ -16,7 +17,7 @@ RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
 
 # We need box64 for arm64
 COPY ./install-box64.sh /tmp/
-RUN /tmp/install-box64.sh
+RUN if [ "$TARGETARCH" = "arm64" ]; then /tmp/install-box64.sh; fi
 RUN rm -f /tmp/install-box64.sh
 
 # Cleanup
