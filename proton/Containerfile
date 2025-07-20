@@ -1,7 +1,7 @@
 FROM docker.io/library/debian:trixie AS base
 
 ARG TARGETARCH
-ARG GE_VERSION="10-9"
+ARG GE_VERSION="10-10"
 
 RUN apt-get update
 RUN apt-get install -y \
