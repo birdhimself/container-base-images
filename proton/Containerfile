@@ -17,7 +17,6 @@ RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
 
 # We need box64 for arm64
 COPY --chmod=0755 ./install-box64.sh /tmp/
-COPY --chmod=0755 ./box64-wrapper /opt/wrappers/box64-wrapper
 RUN if [ "$TARGETARCH" = "arm64" ]; then /tmp/install-box64.sh; fi
 RUN rm -f /tmp/install-box64.sh
 
