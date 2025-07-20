@@ -1,4 +1,29 @@
 #!/bin/bash
-SCRIPT_DIR="$(dirname $(readlink -f "$0")")"
-BIN_NAME="$(basename "$0")"
-exec box64 "$SCRIPT_DIR/${BIN_NAME}.amd64" "$@"
+
+INVOKED_PATH="$(realpath -s $0)"
+WRAPPER_PATH="$(readlink -f "$0")"
+
+# Resolve symlinks manually, stopping when the next step would resolve to the
+# actual wrapper.
+PREV_PATH="$INVOKED_PATH"
+
+while true; do
+  NEXT_PATH="$(readlink "$PREV_PATH")"
+  NEXT_PATH="$(realpath -s "$NEXT_PATH")"
+
+  if [[ "$NEXT_PATH" == "$WRAPPER_PATH" ]]; then
+    break
+  fi
+
+  PREV_PATH="$NEXT_PATH"
+done
+
+REAL_BIN="$PREV_PATH.amd64"
+
+# Check if the binary exists
+if [[ ! -f "$REAL_BIN" ]]; then
+  echo "Error: Expected binary not found: $REAL_BIN" >&2
+  exit 1
+fi
+
+exec box64 "$REAL_BIN" "$@"
