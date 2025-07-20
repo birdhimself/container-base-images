@@ -1,0 +1,4 @@
+#!/bin/bash
+SCRIPT_DIR="$(dirname $(readlink -f "$0")")"
+BIN_NAME="$(basename "$0")"
+exec box64 "$SCRIPT_DIR/${BIN_NAME}.amd64" "$@"
