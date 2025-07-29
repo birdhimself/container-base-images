@@ -46,6 +46,8 @@ jobs:
   manifest:
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     strategy:
       matrix:
         folder: [proton]
