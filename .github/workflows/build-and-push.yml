@@ -34,13 +34,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push image
-        run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/base-${{ matrix.folder }}
-          docker buildx build \
-            --platform ${{ matrix.platform }} \
-            -f ${{ matrix.folder }}/Containerfile \
-            -t $IMAGE:${{ matrix.arch }}-latest \
-            --push ${{ matrix.folder }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.folder }}
+          platforms: ${{ matrix.platform }}
+          push: true
+          provenance: false
+          file: ${{ matrix.folder }}/Containerfile
+          tags: ghcr.io/${{ github.repository_owner }}/base-${{ matrix.folder }}:${{ matrix.arch }}-latest
 
   manifest:
     needs: build-and-push
