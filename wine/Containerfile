@@ -6,11 +6,12 @@ ARG WINE_VERSION="10.19"
 RUN apt-get update
 RUN apt-get install -y \
 wget \
-gpg
+gpg \
+xz-utils
 
 RUN mkdir /opt/wine
 RUN wget -qO- "https://github.com/Kron4ek/Wine-Builds/releases/download/${WINE_VERSION}/wine-${WINE_VERSION}-staging-tkg-amd64-wow64.tar.xz" | \
-tar -xz --strip-components=1 -C /opt/wine
+tar -xJ --strip-components=1 -C /opt/wine
 
 RUN ln -s /opt/wine/bin/wine /usr/local/bin/wine
 
