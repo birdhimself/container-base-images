@@ -13,7 +13,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        folder: [proton]
+        folder: [proton, wine]
         arch: [amd64, arm64]
         include:
           - arch: amd64

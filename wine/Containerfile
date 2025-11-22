@@ -1,0 +1,24 @@
+FROM docker.io/library/debian:trixie AS base
+
+ARG TARGETARCH
+ARG WINE_VERSION="10.19"
+
+RUN apt-get update
+RUN apt-get install -y \
+wget \
+gpg
+
+RUN mkdir /opt/wine
+RUN wget -qO- "https://github.com/Kron4ek/Wine-Builds/releases/download/${WINE_VERSION}/wine-${WINE_VERSION}-staging-tkg-amd64-wow64.tar.xz" | \
+tar -xz --strip-components=1 -C /opt/wine
+
+RUN ln -s /opt/wine/bin/wine /usr/local/bin/wine
+
+# We need box64 for arm64
+COPY --chmod=0755 ./install-box64.sh /tmp/
+RUN if [ "$TARGETARCH" = "arm64" ]; then /tmp/install-box64.sh; fi
+RUN rm -f /tmp/install-box64.sh
+
+# Cleanup
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
