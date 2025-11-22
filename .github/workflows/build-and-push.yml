@@ -50,7 +50,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        folder: [proton]
+        folder: [proton, wine]
 
     steps:
       - name: Log in to GHCR
