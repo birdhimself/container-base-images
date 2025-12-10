@@ -1,7 +1,7 @@
 FROM docker.io/library/debian:trixie AS base
 
 ARG TARGETARCH
-ARG WINE_VERSION="10.19"
+ARG WINE_VERSION="10.20"
 
 RUN apt-get update
 RUN apt-get install -y \
