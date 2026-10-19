@@ -1,7 +1,7 @@
 FROM docker.io/library/debian:trixie AS base
 
 ARG TARGETARCH
-ARG GE_VERSION="10-26"
+ARG GE_VERSION="11-10"
 
 RUN apt-get update
 RUN apt-get install -y \
@@ -9,11 +9,12 @@ wget \
 gpg
 
 RUN mkdir /opt/proton
-RUN wget -qO- "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/GE-Proton${GE_VERSION}.tar.gz" | \
+RUN wget -qO- "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/GE-Proton${GE_VERSION}-x86_64.tar.gz" | \
 tar -xz --strip-components=1 -C /opt/proton
 
 RUN ln -s /opt/proton/files/bin/wine /usr/local/bin/wine
-RUN ln -s /opt/proton/files/bin/wine64 /usr/local/bin/wine64
+# Proton 11 no longer ships a wine64 launcher in files/bin; keep the name for compatibility
+RUN ln -s /opt/proton/files/bin/wine /usr/local/bin/wine64
 
 # We need box64 for arm64
 COPY --chmod=0755 ./install-box64.sh /tmp/
