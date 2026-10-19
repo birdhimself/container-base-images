@@ -14,8 +14,13 @@ RUN case "$TARGETARCH" in \
       arm64) PROTON_ARCH=aarch64 ;; \
       *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; \
     esac && \
-    wget -qO- "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/GE-Proton${GE_VERSION}-${PROTON_ARCH}.tar.gz" | \
-    tar -xz --strip-components=1 -C /opt/proton
+    PROTON_NAME="GE-Proton${GE_VERSION}-${PROTON_ARCH}" && \
+    cd /tmp && \
+    wget -q "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/${PROTON_NAME}.tar.gz" \
+            "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_VERSION}/${PROTON_NAME}.sha512sum" && \
+    sha512sum -c "${PROTON_NAME}.sha512sum" && \
+    tar -xzf "${PROTON_NAME}.tar.gz" --strip-components=1 -C /opt/proton && \
+    rm -f "${PROTON_NAME}.tar.gz" "${PROTON_NAME}.sha512sum"
 
 # The arm64 build ships its binaries in bin-arm64 instead of bin.
 # Proton 11 no longer ships a wine64 launcher there; keep the name for compatibility.
