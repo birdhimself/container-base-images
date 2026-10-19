@@ -10,8 +10,13 @@ gpg \
 xz-utils
 
 RUN mkdir /opt/wine
-RUN wget -qO- "https://github.com/Kron4ek/Wine-Builds/releases/download/${WINE_VERSION}/wine-${WINE_VERSION}-staging-tkg-amd64-wow64.tar.xz" | \
-tar -xJ --strip-components=1 -C /opt/wine
+RUN WINE_ARCHIVE="wine-${WINE_VERSION}-staging-tkg-amd64-wow64.tar.xz" && \
+    cd /tmp && \
+    wget -q "https://github.com/Kron4ek/Wine-Builds/releases/download/${WINE_VERSION}/${WINE_ARCHIVE}" \
+            "https://github.com/Kron4ek/Wine-Builds/releases/download/${WINE_VERSION}/sha256sums.txt" && \
+    grep " ${WINE_ARCHIVE}\$" sha256sums.txt | sha256sum -c - && \
+    tar -xJf "$WINE_ARCHIVE" --strip-components=1 -C /opt/wine && \
+    rm -f "$WINE_ARCHIVE" sha256sums.txt
 
 RUN ln -s /opt/wine/bin/wine /usr/local/bin/wine
 
