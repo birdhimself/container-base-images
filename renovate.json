@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Version ARGs in Containerfiles annotated with a renovate comment",
+      "managerFilePatterns": ["/(^|/)Containerfile$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG \\w+=\"(?<currentValue>[^\"]+)\""
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Wine builds are tagged like 11.20; skip rc and proton-* tags",
+      "matchDepNames": ["Kron4ek/Wine-Builds"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)$",
+      "semanticCommitScope": "wine",
+      "commitMessageTopic": "Wine"
+    },
+    {
+      "description": "GE-Proton tags look like GE-Proton11-10, the ARG holds 11-10",
+      "matchDepNames": ["GloriousEggroll/proton-ge-custom"],
+      "extractVersion": "^GE-Proton(?<version>\\d+-\\d+)$",
+      "versioning": "regex:^(?<major>\\d+)-(?<minor>\\d+)$",
+      "semanticCommitScope": "proton",
+      "commitMessageTopic": "Proton GE"
+    },
+    {
+      "matchDepNames": ["Kron4ek/Wine-Builds", "GloriousEggroll/proton-ge-custom"],
+      "commitMessageAction": "bump"
+    }
+  ]
+}

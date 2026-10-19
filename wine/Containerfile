@@ -1,6 +1,7 @@
 FROM docker.io/library/debian:trixie AS base
 
 ARG TARGETARCH
+# renovate: datasource=github-releases depName=Kron4ek/Wine-Builds
 ARG WINE_VERSION="11.20"
 
 RUN apt-get update
