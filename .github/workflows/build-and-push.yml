@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-and-push:
@@ -12,6 +18,7 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         folder: [proton, wine]
         arch: [amd64, arm64]
@@ -22,47 +29,76 @@ jobs:
           - arch: arm64
             runner: ubuntu-24.04-arm
             platform: linux/arm64
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/base-${{ matrix.folder }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(sed -nE 's/^ARG [A-Z_]+_VERSION="([^"]+)"$/\1/p' ${{ matrix.folder }}/Containerfile | head -1)
+          test -n "$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.folder }}
+          platforms: ${{ matrix.platform }}
+          load: true
+          provenance: false
+          file: ${{ matrix.folder }}/Containerfile
+          tags: |
+            ${{ env.IMAGE }}:${{ matrix.arch }}-latest
+            ${{ env.IMAGE }}:${{ matrix.arch }}-${{ steps.version.outputs.version }}
+      - name: Smoke test
+        run: |
+          docker run --rm $IMAGE:${{ matrix.arch }}-latest sh -c '
+            for f in /usr/local/bin/*; do
+              [ -e "$f" ] || { echo "Broken symlink: $f -> $(readlink "$f")"; exit 1; }
+            done'
       - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.folder }}
-          platforms: ${{ matrix.platform }}
-          push: true
-          provenance: false
-          file: ${{ matrix.folder }}/Containerfile
-          tags: ghcr.io/${{ github.repository_owner }}/base-${{ matrix.folder }}:${{ matrix.arch }}-latest
+      - name: Push image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push $IMAGE:${{ matrix.arch }}-latest
+          docker push $IMAGE:${{ matrix.arch }}-${{ steps.version.outputs.version }}
 
   manifest:
     needs: build-and-push
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       packages: write
     strategy:
       matrix:
         folder: [proton, wine]
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create and push manifest
+      - name: Create and push manifests
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/base-${{ matrix.folder }}
-          docker manifest create $IMAGE:latest \
-            --amend $IMAGE:amd64-latest \
-            --amend $IMAGE:arm64-latest
-          docker manifest push $IMAGE:latest
+          VERSION=$(sed -nE 's/^ARG [A-Z_]+_VERSION="([^"]+)"$/\1/p' ${{ matrix.folder }}/Containerfile | head -1)
+          for TAG in latest $VERSION; do
+            docker manifest create $IMAGE:$TAG \
+              --amend $IMAGE:amd64-$TAG \
+              --amend $IMAGE:arm64-$TAG
+            docker manifest push $IMAGE:$TAG
+          done
