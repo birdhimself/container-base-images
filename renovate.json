@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "commitMessageLowerCase": "never",
+  "commitMessageAction": "update",
   "customManagers": [
     {
       "customType": "regex",
@@ -28,8 +30,10 @@
       "commitMessageTopic": "Proton GE"
     },
     {
+      "description": "Match existing commit messages like 'chore(wine): bump Wine to 11.20'",
       "matchDepNames": ["Kron4ek/Wine-Builds", "GloriousEggroll/proton-ge-custom"],
-      "commitMessageAction": "bump"
+      "commitMessageAction": "bump",
+      "commitMessageExtra": "to {{newVersion}}"
     }
   ]
 }
