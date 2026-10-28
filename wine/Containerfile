@@ -1,4 +1,4 @@
-FROM docker.io/library/debian:trixie@sha256:913f6706df59a68922d1dd08f78c2476560a8d367897200a6005b00e5f67c2d5 AS base
+FROM docker.io/library/debian:trixie@sha256:8c4733a92aacd0bcff3779eadc35a4a5147f36cb20a5fcb56504cbc740212259 AS base
 
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=Kron4ek/Wine-Builds
