@@ -2,7 +2,7 @@ FROM docker.io/library/debian:trixie@sha256:2dc419c6d7fe3dad0a2f9fd469c34cc90b0f
 
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=Kron4ek/Wine-Builds
-ARG WINE_VERSION="11.20"
+ARG WINE_VERSION="11.21"
 
 RUN apt-get update
 RUN apt-get install -y \
