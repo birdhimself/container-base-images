@@ -2,7 +2,7 @@ FROM docker.io/library/debian:trixie@sha256:2dc419c6d7fe3dad0a2f9fd469c34cc90b0f
 
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=GloriousEggroll/proton-ge-custom
-ARG GE_VERSION="11-11"
+ARG GE_VERSION="11-12"
 
 RUN apt-get update
 RUN apt-get install -y \
